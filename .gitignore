@@ -7,3 +7,5 @@ bin/
 publications_lucene/
 publications_neo4j/
 sample.bib
+build/
+bower_components/

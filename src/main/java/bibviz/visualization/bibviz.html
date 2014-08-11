@@ -6,19 +6,67 @@
 
 	<title>IAT 355 Open Lab 1</title>
 	<script src="http://d3js.org/d3.v3.min.js"></script>
+<!-- 
+	<script type="text/javascript" src="../../../../../bower_components/d3-tip/index.js"></script>
+ -->
+	<script type="text/javascript" src="d3-tip.js"></script>
+
+
 	<style type="text/css">
-	/* line 5, /home/elrond/Desktop/Timeline/app/assets/stylesheets/welcome.css.scss */
-	.axis path,
-	.axis line {
-	  fill: none;
-	  stroke: black;
-	  shape-rendering: crispEdges;
+	.d3-tip {
+		line-height: 1;
+		font-weight: bold;
+		padding: 12px;
+		background: rgba(0, 0, 0, 0.8);
+		color: #fff;
+		border-radius: 2px;
+		pointer-events: none;
 	}
 
-	/* line 11, /home/elrond/Desktop/Timeline/app/assets/stylesheets/welcome.css.scss */
-	.axis text {
-	  font-family: sans-serif;
-	  font-size: 11px;
+	/* Creates a small triangle extender for the tooltip */
+	.d3-tip:after {
+		box-sizing: border-box;
+		display: inline;
+		font-size: 10px;
+		width: 100%;
+		line-height: 1;
+		color: rgba(0, 0, 0, 0.8);
+		position: absolute;
+		pointer-events: none;
+	}
+
+	/* Northward tooltips */
+	.d3-tip.n:after {
+		content: "\25BC";
+		margin: -1px 0 0 0;
+		top: 100%;
+		left: 0;
+		text-align: center;
+	}
+
+	/* Eastward tooltips */
+	.d3-tip.e:after {
+		content: "\25C0";
+		margin: -4px 0 0 0;
+		top: 50%;
+		left: -8px;
+	}
+
+	/* Southward tooltips */
+	.d3-tip.s:after {
+		content: "\25B2";
+		margin: 0 0 1px 0;
+		top: -8px;
+		left: 0;
+		text-align: center;
+	}
+
+	/* Westward tooltips */
+	.d3-tip.w:after {
+		content: "\25B6";
+		margin: -4px 0 0 -1px;
+		top: 50%;
+		left: 100%;
 	}
 	</style>
 </head>
@@ -34,6 +82,15 @@
 
 	<script type="text/javascript">
 
+	/* Initialize tooltip */
+	tip = d3.tip().attr('class', 'd3-tip')
+			.html(function(d) {
+				console.log(d)
+				return "<div>\
+				Title: "+d["title"]+"\
+				</div>" 
+			});
+
 	var width = 800;
 	var height = 600;
 
@@ -42,6 +99,7 @@
 	            .attr("id", "svg-container")
 	            .attr("width", width)
 	            .attr("height", height);
+	svg.call(tip)
 
 	var padding = {top: 10, bottom: 30, left: 50, right: 15};
 
@@ -103,6 +161,8 @@
 						return "n4j-"+d["n4jId"];
 					})
 					.attr("r", 10)
+					.on('mouseover', tip.show)
+					.on('mouseout', tip.hide)
 					.call(force.drag);
 
 		force.on("tick", function() {

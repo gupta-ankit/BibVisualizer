@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 import javafx.application.Platform;
@@ -21,6 +23,8 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 
 import com.google.gson.JsonObject;
@@ -67,7 +71,7 @@ public class MainWindow extends JFrame {
 
 			public void actionPerformed(ActionEvent arg0) {
 				Set<Integer> nodeIds = search();
-				System.err.println("Show Only: " +  nodeIds);
+				System.err.println("Show Only: " + nodeIds);
 				final String showOnlyNodes = nodeIds.toString();
 				Platform.runLater(new Runnable() {
 
@@ -91,6 +95,12 @@ public class MainWindow extends JFrame {
 		final WebEngine engine = browser.getEngine();
 		engine.load(MainWindow.class.getResource("bibviz.html")
 				.toExternalForm());
+//		try {
+//			String d3tip = IOUtils.toString(MainWindow.class.getResourceAsStream("d3-tip.js"));
+//			engine.executeScript(d3tip);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		engine.documentProperty().addListener(new ChangeListener<Document>() {
 
