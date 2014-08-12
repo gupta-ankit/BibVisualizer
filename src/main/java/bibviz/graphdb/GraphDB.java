@@ -21,29 +21,21 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import bibviz.visualization.helper.NodeJSONGenerator;
 
 public class GraphDB {
-
-	private static final String DEFAULT_DB_NAME = "publications_neo4j";
 	private GraphDatabaseService publicationDB;
 	private ExecutionEngine executionEngine;
 	private Transaction currentTransaction;
+	private File n4jDir;
+
+	public GraphDB(File n4jDir) {
+		this.n4jDir = n4jDir;
+		init();
+	}
 
 	public void init() {
-		try {
-			FileUtils.deleteDirectory(new File(DEFAULT_DB_NAME));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		publicationDB = new GraphDatabaseFactory()
-				.newEmbeddedDatabase(DEFAULT_DB_NAME);
+		publicationDB = new GraphDatabaseFactory().newEmbeddedDatabase(n4jDir
+				.getAbsolutePath());
 
 		executionEngine = new ExecutionEngine(publicationDB);
-
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-			public void run() {
-				publicationDB.shutdown();
-			}
-		}));
 	}
 
 	public long addEntry(Key k, BibTeXEntry bibEntry) {
@@ -126,6 +118,10 @@ public class GraphDB {
 	public void endTransaction() {
 		this.currentTransaction.close();
 		this.currentTransaction = null;
+	}
+
+	public void close() {
+		publicationDB.shutdown();
 	}
 
 }

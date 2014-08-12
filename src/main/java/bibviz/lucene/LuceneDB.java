@@ -30,7 +30,6 @@ import org.jbibtex.Key;
 import org.jbibtex.Value;
 
 public class LuceneDB {
-	private static final String LUCENE_DIR = "publications_lucene";
 	private Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_36);
 	private IndexWriterConfig wc = new IndexWriterConfig(Version.LUCENE_36,
 			analyzer);
@@ -38,16 +37,14 @@ public class LuceneDB {
 	private Directory dir;
 	private IndexWriter indexWriter;
 	private QueryParser parser;
+	private File luceneDir;
 
-	public void init() {
-		File luceneDir = null;
-		try {
-			luceneDir = new File(LUCENE_DIR);
-			FileUtils.deleteDirectory(luceneDir);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public LuceneDB(File luceneDir) {
+		this.luceneDir = luceneDir;
+		init();
+	}
 
+	private void init() {
 		try {
 			dir = FSDirectory.open(luceneDir);
 		} catch (IOException e) {
@@ -59,19 +56,6 @@ public class LuceneDB {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-			public void run() {
-				try {
-					indexWriter.close();
-					dir.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}));
-
 	}
 
 	public void addEntry(Key k, BibTeXEntry bibEntry, long entryID) {
@@ -150,5 +134,14 @@ public class LuceneDB {
 			e.printStackTrace();
 		}
 		return list2return;
+	}
+
+	public void close() {
+		try {
+			indexWriter.close();
+			dir.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

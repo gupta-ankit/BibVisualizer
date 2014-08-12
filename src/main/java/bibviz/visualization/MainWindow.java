@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javafx.application.Platform;
@@ -18,7 +19,9 @@ import javafx.scene.web.WebView;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
@@ -29,7 +32,9 @@ import org.w3c.dom.Document;
 
 import com.google.gson.JsonObject;
 
+import bibviz.Application;
 import bibviz.model.BibVizModel;
+import bibviz.project.BibVizProject;
 import bibviz.visualization.helper.BibVizHelper;
 
 public class MainWindow extends JFrame {
@@ -55,13 +60,13 @@ public class MainWindow extends JFrame {
 
 	final JButton selectFieldsBtn = new JButton(selectFieldsAction);
 	private JTextField searchField;
-	private BibVizModel model;
 	private WebView browser;
+	private WebEngine engine;
 
-	public MainWindow(BibVizModel model) {
+	public MainWindow() {
 		super("Bibtex Visualizer");
 
-		this.model = model;
+		this.setJMenuBar(new MainMenuBar());
 		this.setLayout(new MigLayout());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(800, 800));
@@ -92,23 +97,14 @@ public class MainWindow extends JFrame {
 
 	public void initFX() {
 		browser = new WebView();
-		final WebEngine engine = browser.getEngine();
+		engine = browser.getEngine();
 		engine.load(MainWindow.class.getResource("bibviz.html")
 				.toExternalForm());
-//		try {
-//			String d3tip = IOUtils.toString(MainWindow.class.getResourceAsStream("d3-tip.js"));
-//			engine.executeScript(d3tip);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
 
 		engine.documentProperty().addListener(new ChangeListener<Document>() {
 
 			public void changed(ObservableValue<? extends Document> arg0,
 					Document arg1, Document arg2) {
-				String sample_json_object = BibVizHelper
-						.getPublicationGraph(model);
-				engine.executeScript("drawGraph(" + sample_json_object + ")");
 				enableFirebug(engine);
 			}
 
@@ -121,9 +117,30 @@ public class MainWindow extends JFrame {
 	}
 
 	private Set<Integer> search() {
-		Set<Integer> nodeIds = model.search(searchField.getText(),
-				fieldSelectionDialog.getSelectedFields());
+		BibVizModel model = Application.getInstance().getMainController()
+				.getCurrentModel();
+		if (model == null) {
+			JOptionPane.showMessageDialog(this,
+					"No project open. Please create/open a project to search");
+			return new HashSet<>();
+		} else {
+			Set<Integer> nodeIds = model.search(searchField.getText(),
+					fieldSelectionDialog.getSelectedFields());
 
-		return nodeIds;
+			return nodeIds;
+		}
+	}
+
+	public void dbLoaded() {
+		BibVizModel model = Application.getInstance().getMainController()
+				.getCurrentModel();
+		String jsonObject = BibVizHelper.getPublicationGraph(model);
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				engine.executeScript("drawGraph(" + jsonObject + ")");
+			}
+		});
 	}
 }
