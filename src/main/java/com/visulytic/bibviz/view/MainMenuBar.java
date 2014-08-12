@@ -1,4 +1,4 @@
-package bibviz.visualization;
+package com.visulytic.bibviz.view;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -14,10 +14,10 @@ import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
 
-import bibviz.Application;
-import bibviz.BibtexDBLoader;
-import bibviz.model.BibVizModel;
-import bibviz.project.BibVizProject;
+import com.visulytic.bibviz.Application;
+import com.visulytic.bibviz.BibtexDBLoader;
+import com.visulytic.bibviz.model.BibVizModel;
+import com.visulytic.bibviz.project.BibVizProject;
 
 public class MainMenuBar extends JMenuBar {
 

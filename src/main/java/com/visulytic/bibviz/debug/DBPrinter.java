@@ -1,4 +1,4 @@
-package bibviz.debug;
+package com.visulytic.bibviz.debug;
 
 import static java.lang.System.out;
 

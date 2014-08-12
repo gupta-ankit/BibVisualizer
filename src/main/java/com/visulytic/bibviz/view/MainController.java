@@ -1,8 +1,8 @@
-package bibviz.visualization;
+package com.visulytic.bibviz.view;
 
-import bibviz.model.BibVizModel;
-import bibviz.model.LoadDBListener;
-import bibviz.project.BibVizProject;
+import com.visulytic.bibviz.model.BibVizModel;
+import com.visulytic.bibviz.model.LoadDBListener;
+import com.visulytic.bibviz.project.BibVizProject;
 
 public class MainController implements LoadDBListener {
 
@@ -17,9 +17,9 @@ public class MainController implements LoadDBListener {
 
 	public void closeCurrentProject() {
 		if (currentProject != null) {
+			currentModel.close();
 			currentProject = null;
 			currentModel = null;
-			currentModel.close();
 		}
 	}
 
@@ -27,6 +27,7 @@ public class MainController implements LoadDBListener {
 		currentProject = project;
 		currentModel = new BibVizModel(project);
 		currentModel.addLoadDBListener(this);
+		mainWindow.dbLoaded();
 	}
 
 	public BibVizModel getCurrentModel() {

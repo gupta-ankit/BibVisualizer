@@ -1,4 +1,4 @@
-package bibviz.project;
+package com.visulytic.bibviz.project;
 
 import java.io.File;
 

@@ -1,4 +1,4 @@
-package bibviz.model;
+package com.visulytic.bibviz.model;
 
 import java.util.ArrayList;
 import java.util.EventListener;
@@ -12,10 +12,10 @@ import org.jbibtex.Key;
 import org.neo4j.graphdb.Node;
 import org.neo4j.helpers.Listeners;
 
-import bibviz.graphdb.GraphDB;
-import bibviz.lucene.LuceneDB;
-import bibviz.project.BibVizProject;
-import bibviz.visualization.LoadDBEvent;
+import com.visulytic.bibviz.model.graphdb.GraphDB;
+import com.visulytic.bibviz.model.lucene.LuceneDB;
+import com.visulytic.bibviz.project.BibVizProject;
+import com.visulytic.bibviz.view.LoadDBEvent;
 
 public class BibVizModel {
 

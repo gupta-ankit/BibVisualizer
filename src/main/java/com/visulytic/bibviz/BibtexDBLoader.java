@@ -1,4 +1,4 @@
-package bibviz;
+package com.visulytic.bibviz;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package bibviz.graphdb;
+package com.visulytic.bibviz.model.graphdb;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
-import bibviz.visualization.helper.NodeJSONGenerator;
+import com.visulytic.bibviz.view.helper.NodeJSONGenerator;
 
 public class GraphDB {
 	private GraphDatabaseService publicationDB;

@@ -1,10 +1,11 @@
-package bibviz;
+package com.visulytic.bibviz;
 
 import javax.swing.SwingUtilities;
 
+import com.visulytic.bibviz.view.MainController;
+import com.visulytic.bibviz.view.MainWindow;
+
 import javafx.application.Platform;
-import bibviz.visualization.MainController;
-import bibviz.visualization.MainWindow;
 
 public class Application {
 

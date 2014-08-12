@@ -1,4 +1,4 @@
-package bibviz.lucene;
+package com.visulytic.bibviz.model.lucene;
 
 import java.io.File;
 import java.io.IOException;

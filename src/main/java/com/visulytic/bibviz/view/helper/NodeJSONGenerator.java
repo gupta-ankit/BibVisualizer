@@ -1,4 +1,4 @@
-package bibviz.visualization.helper;
+package com.visulytic.bibviz.view.helper;
 
 import java.util.List;
 

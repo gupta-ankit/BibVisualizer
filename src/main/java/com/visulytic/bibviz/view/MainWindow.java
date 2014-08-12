@@ -1,4 +1,4 @@
-package bibviz.visualization;
+package com.visulytic.bibviz.view;
 
 import java.awt.Dimension;
 import java.awt.List;
@@ -31,11 +31,10 @@ import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 
 import com.google.gson.JsonObject;
-
-import bibviz.Application;
-import bibviz.model.BibVizModel;
-import bibviz.project.BibVizProject;
-import bibviz.visualization.helper.BibVizHelper;
+import com.visulytic.bibviz.Application;
+import com.visulytic.bibviz.model.BibVizModel;
+import com.visulytic.bibviz.project.BibVizProject;
+import com.visulytic.bibviz.view.helper.BibVizHelper;
 
 public class MainWindow extends JFrame {
 

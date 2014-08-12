@@ -1,4 +1,4 @@
-package bibviz.visualization;
+package com.visulytic.bibviz.view;
 
 import java.awt.AWTEvent;
 import java.util.EventObject;
