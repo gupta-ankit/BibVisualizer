@@ -11,14 +11,13 @@ import com.google.gson.JsonObject;
 public class NodeJSONGenerator {
 
 	public static String getJSON(List<Node> nodes) {
-		StringBuilder builder = new StringBuilder();
 
 		JsonArray jsonArray = new JsonArray();
 
 		for (Node n : nodes) {
 			jsonArray.add(getJsonElement(n));
 		}
-		
+
 		return jsonArray.toString();
 
 	}

@@ -12,8 +12,10 @@ import org.jbibtex.Value;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.DynamicLabel;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -21,6 +23,10 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import com.visulytic.bibviz.view.helper.NodeJSONGenerator;
 
 public class GraphDB {
+	private static final RelationshipType WROTE_RELATIONSHIP = DynamicRelationshipType
+			.withName("wrote");
+	private static final RelationshipType IS_FIRST_AUTHOR = DynamicRelationshipType
+			.withName("is_first_author");
 	private GraphDatabaseService publicationDB;
 	private ExecutionEngine executionEngine;
 	private Transaction currentTransaction;
@@ -57,7 +63,18 @@ public class GraphDB {
 
 			String[] authors = authorString.split("and");
 
-			publicationNode.setProperty("authors", authors);
+			for (String author : authors) {
+				Node authorNode = publicationDB.createNode();
+				if (author == authors[0]) {
+					// if the first node
+					authorNode.createRelationshipTo(publicationNode,
+							IS_FIRST_AUTHOR);
+				}
+				authorNode.addLabel(DynamicLabel.label("Author"));
+				authorNode.setProperty("name", author);
+				authorNode.createRelationshipTo(publicationNode,
+						WROTE_RELATIONSHIP);
+			}
 		}
 
 		Value titleValue = bibEntry.getField(BibTeXEntry.KEY_TITLE);
@@ -70,7 +87,6 @@ public class GraphDB {
 		Value abstractValue = bibEntry.getField(new Key("abstract"));
 		if (abstractValue != null) {
 			String abstractString = abstractValue.toUserString();
-
 			publicationNode.setProperty("abstract", abstractString);
 		}
 
@@ -85,7 +101,7 @@ public class GraphDB {
 
 		List<Node> nodes = new ArrayList<Node>();
 		Transaction tx = publicationDB.beginTx();
-		String queryString = "match (n:Publication) return n";
+		String queryString = "match (n) return n";
 		ExecutionResult result = executionEngine.execute(queryString);
 		ResourceIterator<Object> resourceIterator = result.columnAs("n");
 		while (resourceIterator.hasNext()) {

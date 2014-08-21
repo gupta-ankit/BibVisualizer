@@ -23,6 +23,7 @@ TODO List
 How can you contribute?
 -----------------------
 If you would like to contribute, here are the ways you can help:
+
 1. Add documentation.
 2. Implement one or more features from the TODO list.
 3. Propose new features.

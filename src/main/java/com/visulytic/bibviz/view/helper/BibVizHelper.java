@@ -21,12 +21,22 @@ public class BibVizHelper {
 
 		for (Node n : allNodes) {
 			JsonObject nodeObj = new JsonObject();
-			nodeObj.addProperty("title", n.getProperty("title").toString());
 			nodeObj.addProperty("n4jId", n.getId());
-			nodeObj.addProperty("type", "publication");
+			System.err.println(n.getLabels());
+			String label = n.getLabels().iterator().next().toString();
+			if (label.equals("Publication")) {
+				nodeObj.addProperty("type", "publication");
+				nodeObj.addProperty("label", n.getProperty("title").toString());
+			} else if (label.equals("Author")) {
+				nodeObj.addProperty("label", n.getProperty("name").toString());
+				nodeObj.addProperty("type", "author");
+			} else {
+				System.err.println("No Label match");
+			}
+
 			nodesArray.add(nodeObj);
 		}
-		
+
 		JsonArray linksArray = new JsonArray();
 		jsonObject.add("links", linksArray);
 

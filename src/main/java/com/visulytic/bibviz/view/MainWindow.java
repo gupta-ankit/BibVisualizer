@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
+import netscape.javascript.JSObject;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -100,6 +101,9 @@ public class MainWindow extends JFrame {
 		engine.load(MainWindow.class.getResource("bibviz.html")
 				.toExternalForm());
 
+		JSObject window = (JSObject) engine.executeScript("window");
+		window.setMember("bridge", new Bridge());
+
 		engine.documentProperty().addListener(new ChangeListener<Document>() {
 
 			public void changed(ObservableValue<? extends Document> arg0,
@@ -141,5 +145,9 @@ public class MainWindow extends JFrame {
 				engine.executeScript("drawGraph(" + jsonObject + ")");
 			}
 		});
+	}
+
+	private class Bridge {
+
 	}
 }

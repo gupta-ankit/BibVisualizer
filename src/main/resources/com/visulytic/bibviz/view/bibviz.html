@@ -85,30 +85,35 @@
 	/* Initialize tooltip */
 	tip = d3.tip().attr('class', 'd3-tip')
 			.html(function(d) {
-				console.log(d)
-				return "<div>\
-				Title: "+d["title"]+"\
-				</div>" 
+				s = "<div>"
+				if(d["type"] == "publication"){
+					s += "Title: "+d["label"]
+				}else if(d["type"] == "author"){
+					s += "Name: "+d["label"]
+				}
+				s += "</div>" 
+				
+				return s;
 			});
 
-	var width = 800;
-	var height = 600;
+	width = 800;
+	height = 600;
 
-	var svg = d3.select("#svg-div")
+	svg = d3.select("#svg-div")
 	            .append("svg")
 	            .attr("id", "svg-container")
 	            .attr("width", width)
 	            .attr("height", height);
 	svg.call(tip)
 
-	var padding = {top: 10, bottom: 30, left: 50, right: 15};
+	padding = {top: 10, bottom: 30, left: 50, right: 15};
 
 
-	var force = d3.layout.force()
+	force = d3.layout.force()
 					.size([width - padding.left - padding.right, height - padding.bottom - padding.top]);
 
-	var nodesToShow = undefined;
-	var currentGraphDataObj;
+	nodesToShow = undefined;
+	currentGraphDataObj;
 
 
 	function showOnlyNodes(showNodes){
@@ -123,7 +128,7 @@
 	}
 
 	function drawGraphFromJsonString(jsonString){
-		var graph = JSON.parse(jsonString);
+		graph = JSON.parse(jsonString);
 		drawGraph(graph);
 	}
 
@@ -139,31 +144,59 @@
 
 		force.nodes(currentGraphDataObj.nodes).links(currentGraphDataObj.links).start();
 
-		var link = svg.selectAll(".link")
+		link = svg.selectAll(".link")
 					.data(currentGraphDataObj.links)
 					.enter()
 					.append("line");
 
-		var node = svg.selectAll(".node")
+		node = svg.selectAll(".node")
 					.data(currentGraphDataObj.nodes)
-					.enter()
-					.append("circle")
-					.filter(function(d,i){
-						if(nodesToShow === undefined){
-							return true
-						}else{
-							flag = nodesToShow.indexOf(d["n4jId"]) > -1
-							console.log(flag)
-							return flag
-						}
-					})
-					.attr("data-nd", function(d, i){
-						return "n4j-"+d["n4jId"];
-					})
-					.attr("r", 10)
-					.on('mouseover', tip.show)
-					.on('mouseout', tip.hide)
-					.call(force.drag);
+					.enter();
+
+		node.append("circle")
+			.filter(function(d,i){
+				if(d["type"] != "author"){
+					return false
+				}
+
+				if(nodesToShow === undefined){
+					return true
+				}else{
+					flag = nodesToShow.indexOf(d["n4jId"]) > -1
+					console.log(flag)
+					return flag
+				}
+			})
+			.attr("data-nd", function(d, i){
+				return "n4j-"+d["n4jId"];
+			})
+			.attr("r", 10)
+			.on('mouseover', tip.show)
+			.on('mouseout', tip.hide)
+			
+
+		node.append("rect")
+			.filter(function(d,i){
+				if(d["type"] != "publication"){
+					return false
+				}
+				if(nodesToShow === undefined){
+					return true
+				}else{
+					flag = nodesToShow.indexOf(d["n4jId"]) > -1
+					return flag
+				}
+			})
+			.attr("data-nd", function(d, i){
+				return "n4j-"+d["n4jId"];
+			})
+			.attr("width", 20)
+			.attr("height", 20)
+			.on('mouseover', tip.show)
+			.on('mouseout', tip.hide);
+
+
+		node.call(force.drag);
 
 		force.on("tick", function() {
 			link.attr("x1", function(d) { return d.source.x; })
@@ -172,7 +205,9 @@
 			.attr("y2", function(d) { return d.target.y; });
 
 			node.attr("cx", function(d) { return d.x; })
+			attr("x", function(d) { return d.x; })
 			.attr("cy", function(d) { return d.y; });
+			.attr("y", function(d) { return d.y; });
 		});		
 	}
 	</script>
