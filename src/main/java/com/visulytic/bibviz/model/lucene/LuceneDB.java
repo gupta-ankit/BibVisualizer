@@ -95,9 +95,9 @@ public class LuceneDB {
 	 * @param fields
 	 * @return
 	 */
-	public Set<Integer> search(String queryText, List<String> fields) {
+	public Set<Long> search(String queryText, List<String> fields) {
 		System.out.println("Searching Lucene " + queryText + " - " + fields);
-		Set<Integer> nodeIds = new HashSet<Integer>();
+		Set<Long> nodeIds = new HashSet<Long>();
 
 		for (String field : fields) {
 			nodeIds.addAll(search(queryText, field));
@@ -106,9 +106,9 @@ public class LuceneDB {
 		return nodeIds;
 	}
 
-	private List<Integer> search(String queryText, String field) {
+	private List<Long> search(String queryText, String field) {
 		IndexReader reader;
-		List<Integer> list2return = new ArrayList<Integer>();
+		List<Long> list2return = new ArrayList<Long>();
 		try {
 			reader = IndexReader.open(dir);
 
@@ -121,7 +121,7 @@ public class LuceneDB {
 			for (int i = 0; i < search.scoreDocs.length; i++) {
 				int docId = search.scoreDocs[i].doc;
 				Document doc = searcher.doc(docId);
-				list2return.add(Integer.parseInt(doc.get("n4jID")));
+				list2return.add(Long.parseLong(doc.get("n4jID")));
 			}
 
 			searcher.close();

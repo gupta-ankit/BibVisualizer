@@ -1,46 +1,32 @@
 package com.visulytic.bibviz.view;
 
 import java.awt.Dimension;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
-
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
-import netscape.javascript.JSObject;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.w3c.dom.Document;
-
-import com.google.gson.JsonObject;
 import com.visulytic.bibviz.Application;
 import com.visulytic.bibviz.model.BibVizModel;
-import com.visulytic.bibviz.project.BibVizProject;
-import com.visulytic.bibviz.view.helper.BibVizHelper;
+import com.visulytic.bibviz.model.graphdb.Edge;
+import com.visulytic.bibviz.model.graphdb.Node;
+
+import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.Graph;
 
 public class MainWindow extends JFrame {
 
 	private final FieldSelectionDialog fieldSelectionDialog = new FieldSelectionDialog();
-	private final JFXPanel fxPanel;
 
 	private AbstractAction selectFieldsAction = new AbstractAction(
 			"Select Fields") {
@@ -60,8 +46,9 @@ public class MainWindow extends JFrame {
 
 	final JButton selectFieldsBtn = new JButton(selectFieldsAction);
 	private JTextField searchField;
-	private WebView browser;
-	private WebEngine engine;
+	private Layout<Node, Edge> layout = new FRLayout<>(
+			new DirectedSparseGraph<>());
+	private BibGraphViewer vv = new BibGraphViewer(layout);
 
 	public MainWindow() {
 		super("Bibtex Visualizer");
@@ -72,54 +59,28 @@ public class MainWindow extends JFrame {
 		this.setPreferredSize(new Dimension(800, 800));
 
 		searchField = new JTextField(30);
-		searchField.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0) {
-				Set<Integer> nodeIds = search();
-				System.err.println("Show Only: " + nodeIds);
-				final String showOnlyNodes = nodeIds.toString();
-				Platform.runLater(new Runnable() {
-
-					public void run() {
-						browser.getEngine().executeScript(
-								"showOnlyNodes(" + showOnlyNodes + ")");
-					}
-				});
-			}
-		});
-
-		fxPanel = new JFXPanel();
 
 		this.add(searchField, "pushx, growx");
-		this.add(selectFieldsBtn, "wrap");
-		this.add(fxPanel, "span2, pushx, growx, pushy, growy");
-	}
+		searchField.addActionListener(new ActionListener() {
 
-	public void initFX() {
-		browser = new WebView();
-		engine = browser.getEngine();
-		engine.load(MainWindow.class.getResource("bibviz.html")
-				.toExternalForm());
-
-		JSObject window = (JSObject) engine.executeScript("window");
-		window.setMember("bridge", new Bridge());
-
-		engine.documentProperty().addListener(new ChangeListener<Document>() {
-
-			public void changed(ObservableValue<? extends Document> arg0,
-					Document arg1, Document arg2) {
-				enableFirebug(engine);
-			}
-
-			private void enableFirebug(WebEngine engine) {
-				engine.executeScript("if (!document.getElementById('FirebugLite')){E = document['createElement' + 'NS'] && document.documentElement.namespaceURI;E = E ? document['createElement' + 'NS'](E, 'script') : document['createElement']('script');E['setAttribute']('id', 'FirebugLite');E['setAttribute']('src', 'https://getfirebug.com/' + 'firebug-lite.js' + '#startOpened');E['setAttribute']('FirebugLite', '4');(document['getElementsByTagName']('head')[0] || document['getElementsByTagName']('body')[0]).appendChild(E);E = new Image;E['setAttribute']('src', 'https://getfirebug.com/' + '#startOpened');}");
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Set<Long> search = search();
+				vv.setShowOnly(search);
+				if (searchField.getText().trim().equals("")) {
+					vv.setShowAll(true);
+				} else {
+					vv.setShowAll(false);
+				}
+				vv.repaint();
 			}
 		});
-		Scene scene = new Scene(browser);
-		fxPanel.setScene(scene);
+
+		this.add(selectFieldsBtn, "wrap");
+		this.add(vv, "span2, pushx, growx, pushy, growy");
 	}
 
-	private Set<Integer> search() {
+	private Set<Long> search() {
 		BibVizModel model = Application.getInstance().getMainController()
 				.getCurrentModel();
 		if (model == null) {
@@ -127,9 +88,8 @@ public class MainWindow extends JFrame {
 					"No project open. Please create/open a project to search");
 			return new HashSet<>();
 		} else {
-			Set<Integer> nodeIds = model.search(searchField.getText(),
+			Set<Long> nodeIds = model.search(searchField.getText(),
 					fieldSelectionDialog.getSelectedFields());
-
 			return nodeIds;
 		}
 	}
@@ -137,17 +97,8 @@ public class MainWindow extends JFrame {
 	public void dbLoaded() {
 		BibVizModel model = Application.getInstance().getMainController()
 				.getCurrentModel();
-		String jsonObject = BibVizHelper.getPublicationGraph(model);
-		Platform.runLater(new Runnable() {
-
-			@Override
-			public void run() {
-				engine.executeScript("drawGraph(" + jsonObject + ")");
-			}
-		});
-	}
-
-	private class Bridge {
-
+		Graph<Node, Edge> graph = model.getGraph();
+		layout.setGraph(graph);
+		vv.repaint();
 	}
 }

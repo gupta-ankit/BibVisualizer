@@ -1,21 +1,21 @@
 package com.visulytic.bibviz.model;
 
 import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.EventObject;
 import java.util.List;
 import java.util.Set;
 
 import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
-import org.neo4j.graphdb.Node;
-import org.neo4j.helpers.Listeners;
 
+import com.visulytic.bibviz.model.graphdb.Edge;
 import com.visulytic.bibviz.model.graphdb.GraphDB;
+import com.visulytic.bibviz.model.graphdb.Node;
 import com.visulytic.bibviz.model.lucene.LuceneDB;
 import com.visulytic.bibviz.project.BibVizProject;
 import com.visulytic.bibviz.view.LoadDBEvent;
+
+import edu.uci.ics.jung.graph.Graph;
 
 public class BibVizModel {
 
@@ -36,26 +36,13 @@ public class BibVizModel {
 	}
 
 	public void addEntry(Key k, BibTeXEntry bibEntry) {
-		long entryID = graphDB.addEntry(k, bibEntry);
+		long entryID = graphDB.addPublication(k, bibEntry);
 		luceneDB.addEntry(k, bibEntry, entryID);
 	}
 
-	public List<Node> getAllNodes() {
-		return graphDB.getAllNodes();
-	}
-
-	public Set<Integer> search(String queryText, List<String> fields) {
-		System.out.println("Searching Lucene " + queryText + " - " + fields);
-		Set<Integer> node4jIds = luceneDB.search(queryText, fields);
+	public Set<Long> search(String queryText, List<String> fields) {
+		Set<Long> node4jIds = luceneDB.search(queryText, fields);
 		return node4jIds;
-	}
-
-	public void beginTransaction() {
-		graphDB.beginTransaction();
-	}
-
-	public void endTransaction() {
-		graphDB.endTransaction();
 	}
 
 	public void close() {
@@ -82,5 +69,9 @@ public class BibVizModel {
 		for (LoadDBListener listener : loadDBListeners) {
 			listener.dbLoaded(event);
 		}
+	}
+
+	public Graph<Node, Edge> getGraph() {
+		return graphDB.getGraph();
 	}
 }
