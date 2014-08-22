@@ -1,6 +1,6 @@
 ext.buildTimestamp = new Date().format('yyyy-MM-dd HH:mm:ss')
 
-versionObj = new ProjectVersion(0, 0, 2)
+versionObj = new ProjectVersion(0, 0, "2")
 
 version = versionObj.toString()
 

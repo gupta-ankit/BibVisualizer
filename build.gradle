@@ -1,5 +1,6 @@
 apply plugin: 'application'
 apply plugin: 'java'
+apply from: "$rootDir/gradle/versioning.gradle"
 
 mainClassName = "bibviz.Application"
 
@@ -30,4 +31,8 @@ dependencies{
 	compile 'net.sf.jung:jung-graph-impl:2.0.1'
 	compile 'net.sf.jung:jung-visualization:2.0.1'
 	
+}
+
+task('version') << {
+	println version
 }
